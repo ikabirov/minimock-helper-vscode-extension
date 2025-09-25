@@ -37,11 +37,11 @@ Minimock Helper is an extension for Visual Studio Code that adds the ability to 
 
 ## Settings
 
-The extension supports two options for configuring the output folder for generated mocks:
+The extension supports a single setting for configuring the output folder for generated mocks:
 
-### 1. `mockFolder`
+### `mockFolder`
 
-Use this option if you want all mocks to be generated in a single output folder for the entire project.
+Specifies the relative path (from the folder containing the Go file) where generated mocks will be placed.
 
 **Example:**
 
@@ -51,24 +51,7 @@ Use this option if you want all mocks to be generated in a single output folder 
 }
 ```
 
-### 2. `mockFolderMap`
-
-Use this option if you want to specify different output folders depending on the path to the file. This is useful for monorepos or projects with multiple modules.
-
-**Example:**
-
-```json
-{
-  "minimock-helper.mockFolderMap": {
-    "pkg/serviceA": "test/serviceA/mocks",
-    "pkg/serviceB": "test/serviceB/mocks"
-  }
-}
-```
-
-If the file path starts with a key in `mockFolderMap`, the corresponding output folder will be used. Otherwise, the value from `mockFolder` will be used as a fallback.
-
-You can configure these options in your VS Code `settings.json`.
+You can configure this option in your VS Code `settings.json`.
 
 ## License
 

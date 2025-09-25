@@ -28,15 +28,8 @@ async function getOutputFolder(filePath: string) {
   const config = vscode.workspace.getConfiguration("minimock-helper")
 
   if (config.mockFolder) {
-    return toAbsolutePath(config.mockFolder)
-  }
-
-  if (config.mockFolderMap) {
-    for (let key in config.mockFolderMap) {
-      if (filePath.startsWith(key)) {
-        return toAbsolutePath(config.mockFolderMap[key])
-      }
-    }
+    const res = path.join(filePath, config.mockFolder)
+    return toAbsolutePath(res)
   }
 
   const res = await vscode.window.showInputBox({
@@ -116,7 +109,46 @@ export function activate(context: vscode.ExtensionContext) {
     }
   )
 
+  const generateMockCmdDisposable = vscode.commands.registerCommand(
+    "minimock-helper.generateMockCmd",
+    async () => {
+      const editor = vscode.window.activeTextEditor
+      const editorUri = editor?.document.uri
+      if (!editor || !editorUri || !editorUri.fsPath.endsWith(".go")) {
+        vscode.window.showErrorMessage("Please select a .go file.")
+        return
+      }
+
+      let uri = editor.document.uri
+      const selection = editor.selection
+      let interfaceName = editor.document.getText(selection)
+
+      const folderPath = path.dirname(uri.fsPath)
+
+      const relativePath = vscode.workspace.asRelativePath(folderPath, false)
+      const outputFolder = await getOutputFolder(relativePath)
+
+      try {
+        fs.mkdirSync(outputFolder, { recursive: true })
+
+        const config = vscode.workspace.getConfiguration("minimock-helper")
+        let cmd = `minimock -g -o ${config.mockFolder} -s "_mock.go" -i ${interfaceName}`
+
+        const position = editor.selection.active
+        const line = editor.document.lineAt(position.line)
+        const newPosition = new vscode.Position(line.lineNumber, 0)
+        editor.selection = new vscode.Selection(newPosition, newPosition)
+        editor.edit((editBuilder) => {
+          editBuilder.insert(editor.selection.active, `//go:generate  ${cmd}\n`)
+        })
+      } catch (err) {
+        vscode.window.showErrorMessage("Can not create folder")
+      }
+    }
+  )
+
   context.subscriptions.push(disposable)
+  context.subscriptions.push(generateMockCmdDisposable)
 }
 
 // This method is called when your extension is deactivated

@@ -3,7 +3,7 @@
   "displayName": "Minimock helper",
   "publisher": "ikabirov",
   "description": "",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "engines": {
     "vscode": "^1.103.0"
   },
@@ -21,6 +21,10 @@
       {
         "command": "minimock-helper.generateMock",
         "title": "minimock: Generate mock file"
+      },
+      {
+        "command": "minimock-helper.generateMockCmd",
+        "title": "minimock: Add go:generate command"
       }
     ],
     "menus": {
